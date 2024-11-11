@@ -2,8 +2,6 @@
 
 namespace RPELineParentUnbinder;
 
-
-
 [JsonObject]
 public class Chart
 {
@@ -22,7 +20,6 @@ public class JudgeLineList : List<judgeLine>
             var fatherPos = GetLineXYPos(this[index].father, beat);
             var fatherAngle = this[this[index].father].eventLayers.GetAngleAtBeat(beat);
             //通过重载，计算相对位置
-            //return GetLinePos(fatherPos.Item1, fatherPos.Item2, this[index].eventLayers.GetAngleAtBeat(beat), xPos, yPos);
             return GetLinePos(fatherPos.Item1, fatherPos.Item2, fatherAngle, xPos, yPos);
         }
 
@@ -44,7 +41,7 @@ public class JudgeLineList : List<judgeLine>
         float absoluteX = fatherLineX + lineX * (float)Math.Cos(angleRadians) - lineY * (float)Math.Sin(angleRadians);
         float absoluteY = fatherLineY + lineX * (float)Math.Sin(angleRadians) + lineY * (float)Math.Cos(angleRadians);
 
-        return new(absoluteX, absoluteY);// 呃，我不知道为什么要取反
+        return new(absoluteX, absoluteY);
     }
 }
 
@@ -57,24 +54,6 @@ public class judgeLine
 
 public class Events : List<Event>
 {
-    /*
-    public float GetValueAtBeat(float beat)
-    {
-        //从列表中找出当前时间的事件，如果没有，使用上一个事件的end值
-        var currentEvent = this.FirstOrDefault(e => e.GetStartBeat() <= beat && e.GetEndBeat() >= beat);
-        if (currentEvent == null)
-        {
-            currentEvent = this.LastOrDefault(e => e.GetEndBeat() < beat);
-            if (currentEvent == null)
-            {
-                return 0;
-            }
-            return currentEvent.end;
-        }
-        return currentEvent.GetValueAtBeat(beat);
-    }
-    */
-    
     public float GetValueAtBeat(float t)
     {
         Event previousChange = null;
