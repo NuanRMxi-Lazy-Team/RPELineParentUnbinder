@@ -11,7 +11,22 @@ if (string.IsNullOrEmpty(jsonPath))
     Console.WriteLine("路径不能为空。");
     return;
 }
-
+//请手动输入谱面时长（单位：拍）
+Console.WriteLine("Please enter the duration of the chart in beats:");
+Console.WriteLine("请输入谱面的时长（单位：拍）：");
+if (!float.TryParse(Console.ReadLine(), out float chartDuration))
+{
+    Console.WriteLine("Invalid input.");
+    Console.WriteLine("无效的输入。");
+    return;
+}
+//给你一次确认的机会，如果你把拍数太长了，你的内存会不会炸我不好说
+Console.WriteLine("Are you sure you want to continue? (Y/N)");
+Console.WriteLine("你确定要继续吗？（Y/N）");
+if (Console.ReadLine()?.ToLower() != "y")
+{
+    return;
+}
 // 读取，并反序列化为Chart对象
 string json = File.ReadAllText(jsonPath);
 Chart chart = JsonConvert.DeserializeObject<Chart>(json);
@@ -25,7 +40,7 @@ for (int i = 0; i < chart.judgeLineList.Count; i++)
         var newEventLayer = new EventLayer();
         newEventLayer.index = i;
         //从0拍开始，硬算到最后一拍，每拍等分为8份，所以每拍的时间为0.125
-        for (float beat = 0; beat < 353f; beat += 0.125f)
+        for (float beat = 0; beat < chartDuration; beat += 0.125f)
         {
             // 覆写层级，从头到尾使用持续0.125拍的线性缓动事件，开始时间为当前拍，结束时间为下一0.125拍，开始数值结束数值使用GetLineXYPos方法获取
             newEventLayer.moveXEvents.Add(new Event
