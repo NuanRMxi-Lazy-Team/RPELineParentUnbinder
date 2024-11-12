@@ -32,23 +32,24 @@ string json = File.ReadAllText(jsonPath);
 Chart chart = JsonConvert.DeserializeObject<Chart>(json);
 
 var eventLayers = new EventLayers();
-// 每拍带有缓动的事件等分为8份线性缓动事件
+// 每拍带有缓动的事件等分为n份，这里默认
+float segmentLength = 1f / 8f;
 for (int i = 0; i < chart.judgeLineList.Count; i++)
 {
     if (chart.judgeLineList[i].father != -1)
     {
         var newEventLayer = new EventLayer();
         newEventLayer.index = i;
-        //从0拍开始，硬算到最后一拍，每拍等分为8份，所以每拍的时间为0.125
-        for (float beat = 0; beat < chartDuration; beat += 0.125f)
+        //从0拍开始，硬算到最后一拍
+        for (float beat = 0; beat < chartDuration; beat += segmentLength)
         {
-            // 覆写层级，从头到尾使用持续0.125拍的线性缓动事件，开始时间为当前拍，结束时间为下一0.125拍，开始数值结束数值使用GetLineXYPos方法获取
+            // 覆写层级
             newEventLayer.moveXEvents.Add(new Event
             {
                 start = chart.judgeLineList.GetLineXYPos(i, beat).Item1,
-                end = chart.judgeLineList.GetLineXYPos(i, beat + 0.125f).Item1,
+                end = chart.judgeLineList.GetLineXYPos(i, beat + segmentLength).Item1,
                 startTime = BeatConverter.BeatToRPEBeat(beat).ToList(),
-                endTime = BeatConverter.BeatToRPEBeat(beat + 0.125f).ToList(),
+                endTime = BeatConverter.BeatToRPEBeat(beat + segmentLength).ToList(),
                 bezier = 0,
                 bezierPoints = new List<double> { 0.0, 0.0, 0.0, 0.0 },
                 easingLeft = 0.0f,
@@ -60,9 +61,9 @@ for (int i = 0; i < chart.judgeLineList.Count; i++)
             newEventLayer.moveYEvents.Add(new Event
             {
                 start = chart.judgeLineList.GetLineXYPos(i, beat).Item2,
-                end = chart.judgeLineList.GetLineXYPos(i, beat + 0.125f).Item2,
+                end = chart.judgeLineList.GetLineXYPos(i, beat + segmentLength).Item2,
                 startTime = BeatConverter.BeatToRPEBeat(beat).ToList(),
-                endTime = BeatConverter.BeatToRPEBeat(beat + 0.125f).ToList(),
+                endTime = BeatConverter.BeatToRPEBeat(beat + segmentLength).ToList(),
                 bezier = 0,
                 bezierPoints = new List<double> { 0.0, 0.0, 0.0, 0.0 },
                 easingLeft = 0.0f,
