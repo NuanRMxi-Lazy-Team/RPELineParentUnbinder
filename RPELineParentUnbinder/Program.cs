@@ -38,38 +38,70 @@ for (int i = 0; i < chart.judgeLineList.Count; i++)
 {
     if (chart.judgeLineList[i].father != -1)
     {
+        
         var newEventLayer = new EventLayer();
         newEventLayer.index = i;
         //从0拍开始，硬算到最后一拍
         for (float beat = 0; beat < chartDuration; beat += segmentLength)
         {
-            // 覆写层级
-            newEventLayer.moveXEvents.Add(new Event
+            var newXEvent = new Event
             {
                 start = chart.judgeLineList.GetLineXYPos(i, beat).Item1,
                 end = chart.judgeLineList.GetLineXYPos(i, beat + segmentLength).Item1,
                 startTime = BeatConverter.BeatToRPEBeat(beat).ToList(),
                 endTime = BeatConverter.BeatToRPEBeat(beat + segmentLength).ToList(),
-                bezier = 0,
-                bezierPoints = new List<double> { 0.0, 0.0, 0.0, 0.0 },
-                easingLeft = 0.0f,
-                easingRight = 1.0f,
-                easingType = 1,
-                linkgroup = 0
-            });
-          
-            newEventLayer.moveYEvents.Add(new Event
+            };
+            var newYEvent = new Event
             {
                 start = chart.judgeLineList.GetLineXYPos(i, beat).Item2,
                 end = chart.judgeLineList.GetLineXYPos(i, beat + segmentLength).Item2,
                 startTime = BeatConverter.BeatToRPEBeat(beat).ToList(),
                 endTime = BeatConverter.BeatToRPEBeat(beat + segmentLength).ToList(),
-                bezier = 0,
-                bezierPoints = new List<double> { 0.0, 0.0, 0.0, 0.0 },
-                easingLeft = 0.0f,
-                easingRight = 1.0f,
-                easingType = 1,
-                linkgroup = 0
+            };
+            
+            
+            // 覆写层级
+            newEventLayer.moveXEvents.Add(newXEvent);
+            newEventLayer.moveYEvents.Add(newYEvent);
+            
+            //分别检查添加的两个事件是否头尾数值相同，如果相同，检查上一个事件的结束值是否与这个事件的开始值相同，如果相同，删除这个事件
+            if (newEventLayer.moveXEvents.Last().start == newEventLayer.moveXEvents.Last().end)
+            {
+                if (newEventLayer.moveXEvents.Last().start == newEventLayer.moveXEvents[^1].end)
+                {
+                    //删除这个事件
+                    newEventLayer.moveXEvents.RemoveAt(newEventLayer.moveXEvents.Count - 1);
+                }
+            }
+            //同上
+            if (newEventLayer.moveYEvents.Last().start == newEventLayer.moveYEvents.Last().end)
+            {
+                if (newEventLayer.moveYEvents.Last().start == newEventLayer.moveYEvents[^1].end)
+                {
+                    newEventLayer.moveYEvents.RemoveAt(newEventLayer.moveYEvents.Count - 1);
+                }
+            }
+        }
+        //检查层级两个事件的第0拍是否有事件，如果没有，添加一个segmentLength长度的事件
+        if (newEventLayer.moveXEvents.Count == 0 || newEventLayer.moveXEvents.First().GetStartBeat() != 0)
+        {
+            //在列表的第一个位置插入一个事件
+            newEventLayer.moveXEvents.Insert(0, new Event
+            {
+                start = chart.judgeLineList.GetLineXYPos(i, 0).Item1,
+                end = chart.judgeLineList.GetLineXYPos(i, 0 + segmentLength).Item1,
+                startTime = new List<int> { 0, 0, 1 },
+                endTime = BeatConverter.BeatToRPEBeat(segmentLength).ToList(),
+            });
+        }
+        if (newEventLayer.moveYEvents.Count == 0 || newEventLayer.moveYEvents.First().GetStartBeat() != 0)
+        {
+            newEventLayer.moveYEvents.Insert(0, new Event
+            {
+                start = chart.judgeLineList.GetLineXYPos(i, 0).Item2,
+                end = chart.judgeLineList.GetLineXYPos(i, 0 + segmentLength).Item2,
+                startTime = new List<int> { 0, 0, 1 },
+                endTime = BeatConverter.BeatToRPEBeat(segmentLength).ToList(),
             });
         }
         eventLayers.Add(newEventLayer);

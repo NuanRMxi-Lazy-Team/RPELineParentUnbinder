@@ -10,7 +10,7 @@ public class Chart
 
 public class JudgeLineList : List<judgeLine>
 {
-    public Tuple<float,float> GetLineXYPos(int index, float beat)
+    public Tuple<float, float> GetLineXYPos(int index, float beat)
     {
         //从eventLayers中获取当前时间的位置
         var xPos = this[index].eventLayers.GetXAtBeat(beat);
@@ -23,10 +23,11 @@ public class JudgeLineList : List<judgeLine>
             return GetLinePos(fatherPos.Item1, fatherPos.Item2, fatherAngle, xPos, yPos);
         }
 
-        return new(xPos,yPos);
+        return new(xPos, yPos);
     }
-    
-    public static Tuple<float,float> GetLinePos(float fatherLineX, float fatherLineY, float angleDegrees, float lineX, float lineY)
+
+    public static Tuple<float, float> GetLinePos(float fatherLineX, float fatherLineY, float angleDegrees, float lineX,
+        float lineY)
     {
         // 归一化角度，将其限制在 0 到 360 度之间
         float angleDegreesNormalized = angleDegrees % 360f;
@@ -45,7 +46,6 @@ public class JudgeLineList : List<judgeLine>
     }
 }
 
-
 public class judgeLine
 {
     public int father = -1;
@@ -57,21 +57,23 @@ public class Events : List<Event>
     public float GetValueAtBeat(float t)
     {
         Event previousChange = null;
-        
-        foreach (var theEvent in this)
+
+        for (int i = 0; i < Count; i++)
         {
+            var theEvent = this[i];
             if (t >= theEvent.GetStartBeat() && t <= theEvent.GetEndBeat())
             {
                 return theEvent.GetValueAtBeat(t);
             }
-            if (t < theEvent.GetStartBeat())
+
+            if (t <= theEvent.GetStartBeat())
             {
                 break;
             }
 
             previousChange = theEvent;
         }
-
+        
         return previousChange?.end ?? 0;
     }
 }
@@ -83,9 +85,9 @@ public class EventLayers : List<EventLayer>
 
     public float GetXAtBeat(float beat) =>
         this.Sum(eventLayer => eventLayer.moveXEvents.GetValueAtBeat(beat));
-    public float GetAngleAtBeat(float beat) => 
+
+    public float GetAngleAtBeat(float beat) =>
         this.Sum(eventLayer => eventLayer.rotateEvents.GetValueAtBeat(beat));
-    
 }
 
 public class EventLayer
@@ -95,6 +97,7 @@ public class EventLayer
     public Events moveYEvents = new();
     public Events rotateEvents = new();
 }
+
 [JsonObject]
 public class Event
 {
@@ -102,13 +105,13 @@ public class Event
     public float end { get; set; }
     public List<int> startTime { get; set; }
     public List<int> endTime { get; set; }
-    public int bezier { get; set; }
-    public List<double> bezierPoints { get; set; }
-    public float easingLeft { get; set; }
-    public float easingRight { get; set; }
-    public int easingType { get; set; }
-    public int linkgroup { get; set; }
-    
+    public int bezier { get; set; } = 0;
+    public List<double> bezierPoints { get; set; } = new() { 0.0, 0.0, 0.0, 0.0 };
+    public float easingLeft { get; set; } = 0.0f;
+    public float easingRight { get; set; } = 1.0f;
+    public int easingType { get; set; } = 1;
+    public int linkgroup { get; set; } = 0;
+
     public float GetValueAtBeat(float beat)
     {
         float startBeat = startTime[0] + (float)startTime[1] / startTime[2];
@@ -120,10 +123,12 @@ public class Event
         //插值
         return Easing.Lerp(start, end, easedBeat);
     }
+
     public float GetStartBeat()
     {
         return startTime[0] + (float)startTime[1] / startTime[2];
     }
+
     public float GetEndBeat()
     {
         return endTime[0] + (float)endTime[1] / endTime[2];
