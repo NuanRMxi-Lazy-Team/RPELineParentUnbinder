@@ -10,7 +10,7 @@ public class Chart
 
 public class JudgeLineList : List<judgeLine>
 {
-    public Tuple<float, float> GetLineXYPos(int index, float beat)
+    public Tuple<double, double> GetLineXYPos(int index, float beat)
     {
         //从eventLayers中获取当前时间的位置
         var xPos = this[index].eventLayers.GetXAtBeat(beat);
@@ -26,18 +26,18 @@ public class JudgeLineList : List<judgeLine>
         return new(xPos, yPos);
     }
 
-    public static Tuple<float, float> GetLinePos(float fatherLineX, float fatherLineY, float angleDegrees, float lineX, float lineY)
+    public static Tuple<double, double> GetLinePos(double fatherLineX, double fatherLineY, double angleDegrees, double lineX, double lineY)
     {
         // 将角度转换为弧度
-        float angleRadians = angleDegrees * (float)Math.PI / 180f;
+        double angleRadians = (angleDegrees % 360) * Math.PI / 180f;
 
         // 计算旋转后的坐标
-        float rotatedX = lineX * (float)Math.Cos(angleRadians) + lineY * (float)Math.Sin(angleRadians);
-        float rotatedY = -lineX * (float)Math.Sin(angleRadians) + lineY * (float)Math.Cos(angleRadians);
+        double rotatedX = lineX * Math.Cos(angleRadians) + lineY * Math.Sin(angleRadians);
+        double rotatedY = -lineX * Math.Sin(angleRadians) + lineY * Math.Cos(angleRadians);
 
         // 计算绝对坐标
-        float absoluteX = fatherLineX + rotatedX;
-        float absoluteY = fatherLineY + rotatedY;
+        double absoluteX = fatherLineX + rotatedX;
+        double absoluteY = fatherLineY + rotatedY;
 
         return new(absoluteX, absoluteY);
     }
@@ -51,7 +51,7 @@ public class judgeLine
 
 public class Events : List<Event>
 {
-    public float GetValueAtBeat(float t)
+    public double GetValueAtBeat(float t)
     {
         Event previousChange = null;
 
@@ -77,13 +77,13 @@ public class Events : List<Event>
 
 public class EventLayers : List<EventLayer>
 {
-    public float GetYAtBeat(float beat) =>
+    public double GetYAtBeat(float beat) =>
         this.Sum(eventLayer => eventLayer.moveYEvents.GetValueAtBeat(beat));
 
-    public float GetXAtBeat(float beat) =>
+    public double GetXAtBeat(float beat) =>
         this.Sum(eventLayer => eventLayer.moveXEvents.GetValueAtBeat(beat));
 
-    public float GetAngleAtBeat(float beat) =>
+    public double GetAngleAtBeat(float beat) =>
         this.Sum(eventLayer => eventLayer.rotateEvents.GetValueAtBeat(beat));
 }
 
@@ -109,14 +109,14 @@ public class Event
     public int easingType { get; set; } = 1;
     public int linkgroup { get; set; } = 0;
 
-    public float GetValueAtBeat(float beat)
+    public double GetValueAtBeat(float beat)
     {
         float startBeat = startTime[0] + (float)startTime[1] / startTime[2];
         float endBeat = endTime[0] + (float)endTime[1] / endTime[2];
         //获得这个拍在这个事件的时间轴上的位置
         float t = (beat - startBeat) / (endBeat - startBeat);
         //获得当前拍的值
-        float easedBeat = Easing.Evaluate(easingType, easingLeft, easingRight, t);
+        double easedBeat = Easing.Evaluate(easingType, easingLeft, easingRight, t);
         //插值
         return Easing.Lerp(start, end, easedBeat);
     }

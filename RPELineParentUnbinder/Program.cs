@@ -33,7 +33,7 @@ Chart chart = JsonConvert.DeserializeObject<Chart>(json);
 
 var eventLayers = new EventLayers();
 // 每拍带有缓动的事件等分为n份，这里默认
-float segmentLength = 1f / 8f;
+float segmentLength = 1f / 32f;
 for (int i = 0; i < chart.judgeLineList.Count; i++)
 {
     if (chart.judgeLineList[i].father != -1)
@@ -46,15 +46,15 @@ for (int i = 0; i < chart.judgeLineList.Count; i++)
         {
             var newXEvent = new Event
             {
-                start = chart.judgeLineList.GetLineXYPos(i, beat).Item1,
-                end = chart.judgeLineList.GetLineXYPos(i, beat + segmentLength).Item1,
+                start = (float)chart.judgeLineList.GetLineXYPos(i, beat).Item1,
+                end = (float)chart.judgeLineList.GetLineXYPos(i, beat + segmentLength).Item1,
                 startTime = BeatConverter.BeatToRPEBeat(beat).ToList(),
                 endTime = BeatConverter.BeatToRPEBeat(beat + segmentLength).ToList(),
             };
             var newYEvent = new Event
             {
-                start = chart.judgeLineList.GetLineXYPos(i, beat).Item2,
-                end = chart.judgeLineList.GetLineXYPos(i, beat + segmentLength).Item2,
+                start = (float)chart.judgeLineList.GetLineXYPos(i, beat).Item2,
+                end = (float)chart.judgeLineList.GetLineXYPos(i, beat + segmentLength).Item2,
                 startTime = BeatConverter.BeatToRPEBeat(beat).ToList(),
                 endTime = BeatConverter.BeatToRPEBeat(beat + segmentLength).ToList(),
             };
@@ -88,8 +88,8 @@ for (int i = 0; i < chart.judgeLineList.Count; i++)
             //在列表的第一个位置插入一个事件
             newEventLayer.moveXEvents.Insert(0, new Event
             {
-                start = chart.judgeLineList.GetLineXYPos(i, 0).Item1,
-                end = chart.judgeLineList.GetLineXYPos(i, 0 + segmentLength).Item1,
+                start = (float)chart.judgeLineList.GetLineXYPos(i, 0).Item1,
+                end = (float)chart.judgeLineList.GetLineXYPos(i, 0 + segmentLength).Item1,
                 startTime = new List<int> { 0, 0, 1 },
                 endTime = BeatConverter.BeatToRPEBeat(segmentLength).ToList(),
             });
@@ -98,8 +98,8 @@ for (int i = 0; i < chart.judgeLineList.Count; i++)
         {
             newEventLayer.moveYEvents.Insert(0, new Event
             {
-                start = chart.judgeLineList.GetLineXYPos(i, 0).Item2,
-                end = chart.judgeLineList.GetLineXYPos(i, 0 + segmentLength).Item2,
+                start = (float)chart.judgeLineList.GetLineXYPos(i, 0).Item2,
+                end = (float)chart.judgeLineList.GetLineXYPos(i, 0 + segmentLength).Item2,
                 startTime = new List<int> { 0, 0, 1 },
                 endTime = BeatConverter.BeatToRPEBeat(segmentLength).ToList(),
             });
@@ -138,7 +138,7 @@ File.WriteAllText("rawchart.json", JsonConvert.SerializeObject(eventLayers, Form
 
 
 
-
+/*
 static List<Event> SplitEvent(Event theEvent, float segmentLength = 0.125f)
 {
     float startBeat = theEvent.startTime[0] + (float)theEvent.startTime[1] / theEvent.startTime[2];
@@ -200,3 +200,4 @@ static List<Event> SplitEvent(Event theEvent, float segmentLength = 0.125f)
 
     return segments;
 }
+*/
