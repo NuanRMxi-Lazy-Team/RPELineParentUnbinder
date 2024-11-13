@@ -26,21 +26,18 @@ public class JudgeLineList : List<judgeLine>
         return new(xPos, yPos);
     }
 
-    public static Tuple<float, float> GetLinePos(float fatherLineX, float fatherLineY, float angleDegrees, float lineX,
-        float lineY)
+    public static Tuple<float, float> GetLinePos(float fatherLineX, float fatherLineY, float angleDegrees, float lineX, float lineY)
     {
-        // 归一化角度，将其限制在 0 到 360 度之间
-        float angleDegreesNormalized = angleDegrees % 360f;
-        if (angleDegreesNormalized < 0)
-        {
-            angleDegreesNormalized += 360f;
-        }
+        // 将角度转换为弧度
+        float angleRadians = angleDegrees * (float)Math.PI / 180f;
 
-        // 将归一化后的角度转换为弧度
-        float angleRadians = angleDegreesNormalized * (float)Math.PI / 180f;
+        // 计算旋转后的坐标
+        float rotatedX = lineX * (float)Math.Cos(angleRadians) + lineY * (float)Math.Sin(angleRadians);
+        float rotatedY = -lineX * (float)Math.Sin(angleRadians) + lineY * (float)Math.Cos(angleRadians);
 
-        float absoluteX = fatherLineX + lineX * (float)Math.Cos(angleRadians) - lineY * (float)Math.Sin(angleRadians);
-        float absoluteY = fatherLineY + lineX * (float)Math.Sin(angleRadians) + lineY * (float)Math.Cos(angleRadians);
+        // 计算绝对坐标
+        float absoluteX = fatherLineX + rotatedX;
+        float absoluteY = fatherLineY + rotatedY;
 
         return new(absoluteX, absoluteY);
     }
