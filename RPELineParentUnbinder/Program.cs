@@ -32,8 +32,23 @@ string json = File.ReadAllText(jsonPath);
 Chart chart = JsonConvert.DeserializeObject<Chart>(json);
 
 var eventLayers = new EventLayers();
-// 每拍带有缓动的事件等分为n份，这里默认
-float segmentLength = 1f / 32f;
+//询问精度，并在询问时推荐默认值为8
+Console.WriteLine("Please enter the precision (8 recommended)");
+Console.WriteLine("请输入精度（推荐默认值为8）：");
+if (!int.TryParse(Console.ReadLine(), out int precision))
+{
+    Console.WriteLine("Invalid input.");
+    Console.WriteLine("无效的输入。");
+    return;
+}
+if (precision <= 0)
+{
+    Console.WriteLine("Invalid input.");
+    Console.WriteLine("无效的输入。");
+    return;
+}
+// 每拍带有缓动的事件等分为n份
+float segmentLength = 1f / precision;
 for (int i = 0; i < chart.judgeLineList.Count; i++)
 {
     if (chart.judgeLineList[i].father != -1)
