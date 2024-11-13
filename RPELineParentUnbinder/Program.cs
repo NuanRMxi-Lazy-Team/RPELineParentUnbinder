@@ -148,7 +148,7 @@ for (int i = 0; i < eventLayers.Count; i++)
     chartDynamic["judgeLineList"][index]["father"] = -1;
 }
 //生成chart.json文件，输出被修改的Json文件
-File.WriteAllText("chart.json", JsonConvert.SerializeObject(chartDynamic, Formatting.Indented));
+File.WriteAllText("chart.json", JsonConvert.SerializeObject(chartDynamic));
 File.WriteAllText("rawchart.json", JsonConvert.SerializeObject(eventLayers, Formatting.Indented));
 
 
